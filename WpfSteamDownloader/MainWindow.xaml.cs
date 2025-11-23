@@ -14,5 +14,10 @@ namespace WpfSteamDownloader
             // We are telling our window that its main source of data and commands is the MainViewModel.
             DataContext = new MainViewModel();
         }
+
+        private void DataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }
