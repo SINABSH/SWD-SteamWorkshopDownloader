@@ -100,25 +100,32 @@ namespace WpfSteamDownloader
         }
 
         #region Command Methods
-        private async Task AddItemToListAsync()
+        private async Task AddItemToListAsync(string? url = null)
         {
-            var url = AddItemText;
-            AddItemText = ""; // Clear the textbox immediately
+            var urlToUse = (url ?? AddItemText)?.Trim();
+            if (string.IsNullOrWhiteSpace(urlToUse))
+                return;
+
+            // If called from the UI (no parameter) clear the textbox
+            if (url == null)
+            {
+                AddItemText = "";
+            }
             _isBusy = true;
-            Log($"AddItemToListAsync called with URL: {url}");
+            Log($"AddItemToListAsync called with URL: {urlToUse}");
 
             var newItem = new WorkshopItem
             {
                 Name = "Checking URL...",
                 Status = "Pending",
-                Url = url
+                Url = urlToUse
             };
             WorkshopItems.Add(newItem);
-            Log($"WorkshopItem added: {url}");
+            Log($"WorkshopItem added: {urlToUse}");
 
             try
             {
-                var html = await _client.GetStringAsync(url);
+                var html = await _client.GetStringAsync(urlToUse);
                 var htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(html);
 
@@ -143,7 +150,7 @@ namespace WpfSteamDownloader
             {
                 newItem.Name = "Failed to add item";
                 newItem.Status = "Error";
-                Log($"Failed to process URL {url}: {ex.Message}");
+                Log($"Failed to process URL {urlToUse}: {ex.Message}");
             }
             finally
             {
@@ -259,7 +266,7 @@ namespace WpfSteamDownloader
             }
         }
 
-        private void LoadList()
+        private async void LoadList()
         {
             var ofd = new OpenFileDialog { Filter = "Text Files (*.txt)|*.txt" };
             if (ofd.ShowDialog() == true)
@@ -267,14 +274,14 @@ namespace WpfSteamDownloader
                 WorkshopItems.Clear();
                 Log($"Loading list from {ofd.FileName}");
                 var lines = File.ReadAllLines(ofd.FileName);
-                if (lines.Length > 0)
+                if (lines.Length >0)
                 {
                     AppId = lines[0];
                     Log($"Loaded AppId: {AppId}");
-                    foreach (var url in lines.Skip(1))
+                    foreach (var url in lines.Skip(1).Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l)))
                     {
                         Log($"Loading item URL: {url}");
-                        _ = AddItemToListAsync(); // Fire and forget
+                        await AddItemToListAsync(url);
                     }
                 }
             }

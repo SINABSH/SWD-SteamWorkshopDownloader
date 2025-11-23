@@ -134,7 +134,7 @@
             <!-- Workshop Items List -->
             <DataGrid ItemsSource="{Binding WorkshopItems}" AutoGenerateColumns="False" CanUserAddRows="False"
                       SelectedItem="{Binding SelectedWorkshopItem}" Margin="12" MinHeight="220"
-                      HorizontalGridLinesBrush="#23272F" VerticalGridLinesBrush="#23272F">
+                      HorizontalGridLinesBrush="#23272F" VerticalGridLinesBrush="#23272F" Foreground="#FF313A46">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
